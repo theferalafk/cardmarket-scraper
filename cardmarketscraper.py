@@ -7,7 +7,7 @@ import tqdm
 class CardMarketScraper:
     def __init__(self, card_list, pages_to_load=5, randomize_requests=True):
         #card list expected to be: of format ['Starfield Vocalist', 'Lich Knights' Conquest', ...]
-        self.card_list = [card.replace(" ","-").replace("'","").replace(",","").replace(":","") for card in card_list]
+        self.card_list = [card.replace(" ","-").replace("'","").replace(",","").replace(":","").replace("//-","") for card in card_list]
         self.sellers_per_card = list()
         self.cards_per_seller = dict()
         self.pages_to_load = pages_to_load
@@ -25,7 +25,7 @@ class CardMarketScraper:
                     initial_res = scraper.get_card_by_name(card, seller_type)
                     card_sellers.update(parse_first_sellers(initial_res))
                     if not card_sellers:
-                        print(card)
+                        print(f"failed on {card}, Loading Page {i}, Seller Type (0 Pri, 1 Pro, 2 Pow): {seller_type}")
                     card_id, token, filters = get_load_more_params(initial_res)
 
                     for i in range(1, self.pages_to_load+1):                    
@@ -38,13 +38,13 @@ class CardMarketScraper:
                         more_seller_dict.update(card_sellers)
                         card_sellers = more_seller_dict
 
-                        if self.randomize_requests:
-                            time.sleep(random.random()*2)
-                        time.sleep(0.5)
+                        #if self.randomize_requests:
+                            #time.sleep(random.random()*1)
+                        time.sleep(0.2)
 
-                    if self.randomize_requests:
-                        time.sleep(random.random()*4)
-                    time.sleep(2)
+                    #if self.randomize_requests:
+                        #time.sleep(random.random()*2)
+                    time.sleep(0.3)
                 self.sellers_per_card.append(list(card_sellers.keys()))
 
                 for seller in card_sellers.keys():

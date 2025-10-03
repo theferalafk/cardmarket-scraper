@@ -37,9 +37,13 @@ def parse_more_sellers(xml_string : str) -> dict[str, str]:
         return {}
 
 def get_load_more_params(html_string : str) -> Tuple[str, str, str]:
-    parser = BeautifulSoup(html_string, 'html.parser')
-    card_id = parser.find(id='loadMore').find("input", {"name":"idMetacard"}).get('value')
-    token = parser.find(id='loadMore').find("input", {"name":"__cmtkn"}).get('value')
-    filters = parser.find(id='loadMore').find("input", {"name":"filterSettings"}).get('value')
+    try:
+        parser = BeautifulSoup(html_string, 'html.parser')
+        card_id = parser.find(id='loadMore').find("input", {"name":"idMetacard"}).get('value')
+        token = parser.find(id='loadMore').find("input", {"name":"__cmtkn"}).get('value')
+        filters = parser.find(id='loadMore').find("input", {"name":"filterSettings"}).get('value')
+    except:
+        print("No additional vendors")
+        return None, None, None
     return card_id, token, filters
     

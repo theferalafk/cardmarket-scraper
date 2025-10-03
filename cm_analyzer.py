@@ -2,7 +2,7 @@ import tqdm
 class CMAnalyzer:
     def __init__(self, full_seller_dict, wanted_cards):
         self.full_seller_dict = full_seller_dict
-        self.wanted_cards = [card.replace(" ","-").replace("'","").replace(",","").replace(":","").replace("//-") for card in wanted_cards]
+        self.wanted_cards = [card.replace(" ","-").replace("'","").replace(",","").replace(":","").replace("//-","") for card in wanted_cards]
     
     def _filter_left_to_buy(input_dict, left_to_buy):
         result = list()

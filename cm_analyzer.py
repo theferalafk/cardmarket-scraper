@@ -2,23 +2,23 @@ import tqdm
 class CMAnalyzer:
     def __init__(self, full_seller_dict, wanted_cards):
         self.full_seller_dict = full_seller_dict
-        self.wanted_cards = [card.replace(" ","-").replace("'","").replace(",","").replace(":","") for card in wanted_cards]
+        self.wanted_cards = [card.replace(" ","-").replace("'","").replace(",","").replace(":","").replace("//-") for card in wanted_cards]
     
     def _filter_left_to_buy(input_dict, left_to_buy):
         result = list()
         for name in input_dict.keys():
-            sum = 1.25
-            if len(input_dict[name])>4:
-                sum = 1.4
-            if len(input_dict[name])>17:
-                sum = 2.3
-            sum = 2.3
             tmp = list()
             for i in input_dict[name]:
                 if i[0] in left_to_buy:
                     tmp.append(i)
                     sum += i[1]
             if len(tmp) > 0:
+                if len(tmp)>4:
+                    sum += 1.4
+                elif len(tmp)>17:
+                    sum += 2.3
+                else:
+                    sum += 1.25
                 quota = sum / len(tmp)
                 result.append([quota, name, tmp])
         result.sort()
@@ -144,6 +144,9 @@ class CMAnalyzer:
     def force_vendors(self, vendors : list[str, str]):
         return self._optimize_shopping_card(self._run_greedy_quota(vendors)[2])
     
+    def force_vendor(self, vendor : str):
+        return self.force_vendors([vendor]), vendor
+    
     def run_default(self):
         return self._optimize_shopping_card(self._run_greedy_quota()[2])
     
@@ -154,4 +157,9 @@ class CMAnalyzer:
             res.append([tmp[0], tmp[1], vendor])
         res.sort()
         return res[:20]
-        
+    
+    def force_all_vendors_once_threaded(self):
+        from multiprocessing import Pool
+
+        with Pool(processes=8) as pool:
+            return pool.map(self.force_vendor, list(self.full_seller_dict.keys()))

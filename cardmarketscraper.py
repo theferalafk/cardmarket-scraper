@@ -5,11 +5,11 @@ import time
 import tqdm
 
 class CardMarketScraper:
-    def __init__(self, card_list, pages_to_load=5, randomize_requests=True):
+    def __init__(self, card_list, pages_to_load=5, randomize_requests=True, cards_per_seller=dict()):
         #card list expected to be: of format ['Starfield Vocalist', 'Lich Knights' Conquest', ...]
         self.card_list = [card.replace(" ","-").replace("'","").replace(",","").replace(":","").replace("//-","") for card in card_list]
         self.sellers_per_card = list()
-        self.cards_per_seller = dict()
+        self.cards_per_seller = cards_per_seller
         self.pages_to_load = pages_to_load
         self.randomize_requests = randomize_requests
     
@@ -28,22 +28,23 @@ class CardMarketScraper:
                         print(f"failed on {card}, Loading Page {i}, Seller Type (0 Pri, 1 Pro, 2 Pow): {seller_type}")
                     card_id, token, filters = get_load_more_params(initial_res)
 
-                    for i in range(1, self.pages_to_load+1):                    
-                        more_res = scraper.get_more_sellers_by_id(card_id, i, token, filters)
-                        more_seller_dict = parse_more_sellers(more_res)
-                        if not more_seller_dict:
-                            print(f"failed on {card}, Loading Page {i}, Seller Type (0 Pri, 1 Pro, 2 Pow): {seller_type}")
-                            break
-                        #update new dict with old, so the lower price gets saved per seller
-                        more_seller_dict.update(card_sellers)
-                        card_sellers = more_seller_dict
+                    if card_id and token and filters:
+                        for i in range(1, self.pages_to_load+1):                    
+                            more_res = scraper.get_more_sellers_by_id(card_id, i, token, filters)
+                            more_seller_dict = parse_more_sellers(more_res)
+                            if not more_seller_dict:
+                                print(f"failed on {card}, Loading Page {i}, Seller Type (0 Pri, 1 Pro, 2 Pow): {seller_type}")
+                                break
+                            #update new dict with old, so the lower price gets saved per seller
+                            more_seller_dict.update(card_sellers)
+                            card_sellers = more_seller_dict
 
-                        #if self.randomize_requests:
-                            #time.sleep(random.random()*1)
-                        time.sleep(0.2)
+                            if self.randomize_requests:
+                                time.sleep(random.random()*1)
+                            time.sleep(0.2)
 
-                    #if self.randomize_requests:
-                        #time.sleep(random.random()*2)
+                    if self.randomize_requests:
+                        time.sleep(random.random()*2)
                     time.sleep(0.3)
                 self.sellers_per_card.append(list(card_sellers.keys()))
 

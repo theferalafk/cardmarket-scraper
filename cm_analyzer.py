@@ -8,6 +8,7 @@ class CMAnalyzer:
         result = list()
         for name in input_dict.keys():
             tmp = list()
+            sum = 0
             for i in input_dict[name]:
                 if i[0] in left_to_buy:
                     tmp.append(i)
